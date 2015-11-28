@@ -5,49 +5,60 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/widget"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#AADEDFDE"
-        android:orientation="horizontal"
-        android:paddingEnd="5dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingStart="5dp">
-
-        <ImageView
-            android:id="@+id/widget_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="center_vertical"
-            tools:src="@drawable/ic_launcher" />
+        android:layout_height="match_parent"
+        android:background="@color/light_green500_transparent"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/widget_top"
-            android:layout_width="0dp"
+            android:id="@+id/widget"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingBottom="4dp"
-            android:paddingLeft="8dp"
-            android:paddingStart="8dp"
-            android:paddingTop="4dp">
+            android:background="@color/light_green50_transparent"
+            android:orientation="horizontal"
+            android:paddingEnd="@dimen/widget_padding"
+            android:paddingLeft="@dimen/widget_padding"
+            android:paddingRight="@dimen/widget_padding"
+            android:paddingStart="@dimen/widget_padding">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/app_name"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="#4B4B4D"
-                android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/widget_icon"
+                android:layout_width="@dimen/widget_icon_width"
+                android:layout_height="@dimen/widget_icon_height"
+                android:layout_gravity="center_vertical"
+                tools:src="@drawable/ic_launcher" />
 
-            <TextView
-                android:id="@+id/widget_number_of_matches"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:id="@+id/widget_top"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Number of matches today"
-                android:textAppearance="?android:textAppearanceSmall"
-                android:textColor="#4B4B4D" />
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/widget_top_vertical_padding"
+                android:paddingLeft="@dimen/widget_top_horizontal_padding"
+                android:paddingStart="@dimen/widget_top_horizontal_padding"
+                android:paddingTop="@dimen/widget_top_vertical_padding">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/widget_title"
+                    android:textSize="@dimen/widget_top_title_text_size"
+                    android:textColor="#4B4B4D"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/widget_number_of_matches"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/widget_top_subtitle_text_size"
+                    android:textColor="#4B4B4D" />
+            </LinearLayout>
         </LinearLayout>
+
+        <ListView
+            android:id="@+id/widget_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </FrameLayout>

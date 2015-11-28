@@ -9,12 +9,13 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/main_app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/main_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,22 +24,22 @@
         </activity>
 
         <provider
-            android:name=".ScoresProvider"
+            android:name=".data.FootballScoresProvider"
             android:authorities="barqsoft.footballscores" />
 
         <activity
             android:name=".AboutActivity"
-            android:label="About"
+            android:label="@string/about_title"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="barqsoft.footballscores.MainActivity" />
         </activity>
-        <service android:name=".service.MyFetchService" />
+        <service android:name=".service.FootballScoresFetchService" />
 
         <receiver
             android:name=".widget.FootballScoresWidgetProvider"
-            android:label="Football Scores">
+            android:label="@string/main_app_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -47,6 +48,11 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>
+
+        <service
+            android:name=".widget.FootballScoresWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
     </application>
 
 </manifest>
