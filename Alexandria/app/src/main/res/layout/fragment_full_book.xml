@@ -42,7 +42,7 @@
                     android:layout_alignStart="@+id/fullBookTitle"
                     android:layout_below="@+id/fullBookTitle"
                     android:layout_marginTop="15dp"
-                    android:contentDescription="@string/book_cover" />
+                    android:contentDescription="@string/book_list_book_cover" />
 
                 <TextView
                     android:id="@+id/fullBookSubTitle"
@@ -91,21 +91,6 @@
                         android:gravity="right|top"
                         android:textStyle="bold" />
                 </LinearLayout>
-
-                <ImageButton
-                    android:id="@+id/backButton"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignEnd="@+id/fullBookTitle"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignRight="@+id/fullBookTitle"
-                    android:layout_gravity="right|top"
-                    android:contentDescription="@string/back_button"
-                    android:onClick="goBack"
-                    android:src="@drawable/ic_action_undo" />
-
-
             </RelativeLayout>
 
         </ScrollView>
@@ -124,7 +109,7 @@
                 android:layout_marginBottom="5dp"
                 android:layout_marginRight="10dp"
                 android:drawableLeft="@drawable/ic_action_discard"
-                android:text="@string/delete" />
+                android:text="@string/button_delete_book" />
         </LinearLayout>
 
     </LinearLayout>

@@ -7,7 +7,6 @@ import android.preference.PreferenceActivity;
  * Created by saj on 27/01/15.
  */
 public class SettingsActivity extends PreferenceActivity {
-
     @Override
     @SuppressWarnings("deprecation")
     public void onCreate(Bundle savedInstanceState) {

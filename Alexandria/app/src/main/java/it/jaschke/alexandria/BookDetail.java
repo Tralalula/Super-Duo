@@ -24,14 +24,16 @@ import it.jaschke.alexandria.services.DownloadImage;
 
 
 public class BookDetail extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    public static final String EAN_KEY = "EAN";
-
-    private final int LOADER_ID = 10;
+    private static final String EAN_KEY = Utilities.EAN_KEY;
 
     private View mRootView;
     private String mEan;
     private String mBookTitle;
     private ShareActionProvider mShareActionProvider;
+    private MenuItem mMenuItem;
+
+    public static final int LOADER_ID = 10;
+
 
     public BookDetail() {
     }
@@ -69,10 +71,25 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.book_detail, menu);
 
-        MenuItem menuItem = menu.findItem(R.id.action_share);
-        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        mMenuItem = menu.findItem(R.id.action_share);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(mMenuItem);
+        mMenuItem.setVisible(false);
+
+        if (mBookTitle != null) {
+            mMenuItem.setVisible(true);
+            mShareActionProvider.setShareIntent(shareBookIntent());
+        }
+    }
+
+    private Intent shareBookIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text) + mBookTitle);
+        return shareIntent;
     }
 
     @Override
@@ -96,28 +113,26 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         mBookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
         if (mBookTitle != null) {
             ((TextView) mRootView.findViewById(R.id.fullBookTitle)).setText(mBookTitle);
+            if (mShareActionProvider != null) {
+                mMenuItem.setVisible(true);
+                mShareActionProvider.setShareIntent(shareBookIntent());
+            }
         } else {
-            ((TextView) mRootView.findViewById(R.id.fullBookTitle)).setText("Book Title Unknown");
+            ((TextView) mRootView.findViewById(R.id.fullBookTitle)).setText(getString(R.string.error_book_title_unknown));
         }
-
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text) + mBookTitle);
-        mShareActionProvider.setShareIntent(shareIntent);
 
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
         if (bookSubTitle != null) {
             ((TextView) mRootView.findViewById(R.id.fullBookSubTitle)).setText(bookSubTitle);
         } else {
-            ((TextView) mRootView.findViewById(R.id.fullBookSubTitle)).setText("Book Subtitle Unknown");
+            ((TextView) mRootView.findViewById(R.id.fullBookSubTitle)).setText(getString(R.string.error_book_subtitle_unknown));
         }
 
         String desc = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.DESC));
         if (desc != null) {
             ((TextView) mRootView.findViewById(R.id.fullBookDesc)).setText(desc);
         } else {
-            ((TextView) mRootView.findViewById(R.id.fullBookDesc)).setText("Description Unknown");
+            ((TextView) mRootView.findViewById(R.id.fullBookDesc)).setText(getString(R.string.error_book_description_unknown));
         }
 
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
@@ -126,7 +141,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
             ((TextView) mRootView.findViewById(R.id.authors)).setLines(authorsArr.length);
             ((TextView) mRootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
         } else {
-            ((TextView) mRootView.findViewById(R.id.authors)).setText("Author Unknown");
+            ((TextView) mRootView.findViewById(R.id.authors)).setText(getString(R.string.error_book_author_unknown));
         }
 
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
@@ -136,10 +151,10 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         }
 
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-        ((TextView) mRootView.findViewById(R.id.categories)).setText(categories);
-
-        if (mRootView.findViewById(R.id.right_container) != null) {
-            mRootView.findViewById(R.id.backButton).setVisibility(View.INVISIBLE);
+        if (categories != null) {
+            ((TextView) mRootView.findViewById(R.id.categories)).setText(categories);
+        } else {
+            ((TextView) mRootView.findViewById(R.id.categories)).setText(getString(R.string.error_book_category_unknown));
         }
     }
 

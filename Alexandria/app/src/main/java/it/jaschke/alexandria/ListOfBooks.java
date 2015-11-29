@@ -20,13 +20,12 @@ import it.jaschke.alexandria.data.AlexandriaContract;
 
 
 public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-
     private BookListAdapter mBookListAdapter;
     private ListView mBookList;
     private int mPosition = ListView.INVALID_POSITION;
     private EditText mSearchText;
 
-    private final int LOADER_ID = 10;
+    private final int LOADER_ID = BookDetail.LOADER_ID;
 
     public ListOfBooks() {
     }
@@ -130,6 +129,6 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        activity.setTitle(R.string.books);
+        activity.setTitle(R.string.menu_list_of_books);
     }
 }

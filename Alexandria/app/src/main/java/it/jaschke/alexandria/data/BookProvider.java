@@ -9,6 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
+import it.jaschke.alexandria.R;
+import it.jaschke.alexandria.Utilities;
+
 /**
  * Created by saj on 24/12/14.
  */
@@ -25,20 +28,20 @@ public class BookProvider extends ContentProvider {
     private static final int BOOK_FULL = 500;
     private static final int BOOK_FULLDETAIL = 501;
 
-    private static final UriMatcher uriMatcher = buildUriMatcher();
+    private static final UriMatcher URI_MATCHER = buildUriMatcher();
+
+    private static SQLiteQueryBuilder mBookFull;
 
     private DbHelper mDbHelper;
 
-    private static final SQLiteQueryBuilder bookFull;
-
     static {
-        bookFull = new SQLiteQueryBuilder();
-        bookFull.setTables(
+        mBookFull = new SQLiteQueryBuilder();
+        mBookFull.setTables(
                 AlexandriaContract.BookEntry.TABLE_NAME + " LEFT OUTER JOIN " +
                         AlexandriaContract.AuthorEntry.TABLE_NAME + " USING (" +
-                        AlexandriaContract.BookEntry._ID + ")" +
-                        " LEFT OUTER JOIN " + AlexandriaContract.CategoryEntry.TABLE_NAME +
-                        " USING (" + AlexandriaContract.BookEntry._ID + ")");
+                        AlexandriaContract.BookEntry._ID + ")" + " LEFT OUTER JOIN " +
+                        AlexandriaContract.CategoryEntry.TABLE_NAME + " USING (" +
+                        AlexandriaContract.BookEntry._ID + ")");
     }
 
     private static UriMatcher buildUriMatcher() {
@@ -69,7 +72,7 @@ public class BookProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor retCursor;
-        switch (uriMatcher.match(uri)) {
+        switch (URI_MATCHER.match(uri)) {
             case BOOK:
                 retCursor = mDbHelper.getReadableDatabase().query(
                         AlexandriaContract.BookEntry.TABLE_NAME,
@@ -142,14 +145,29 @@ public class BookProvider extends ContentProvider {
                         AlexandriaContract.BookEntry.TABLE_NAME + "." + AlexandriaContract.BookEntry.SUBTITLE,
                         AlexandriaContract.BookEntry.TABLE_NAME + "." + AlexandriaContract.BookEntry.IMAGE_URL,
                         AlexandriaContract.BookEntry.TABLE_NAME + "." + AlexandriaContract.BookEntry.DESC,
-                        "group_concat(DISTINCT " + AlexandriaContract.AuthorEntry.TABLE_NAME + "." + AlexandriaContract.AuthorEntry.AUTHOR + ") as " + AlexandriaContract.AuthorEntry.AUTHOR,
-                        "group_concat(DISTINCT " + AlexandriaContract.CategoryEntry.TABLE_NAME + "." + AlexandriaContract.CategoryEntry.CATEGORY + ") as " + AlexandriaContract.CategoryEntry.CATEGORY
+
+                        "group_concat(DISTINCT " +
+                                AlexandriaContract.AuthorEntry.TABLE_NAME + "." +
+                                AlexandriaContract.AuthorEntry.AUTHOR + ") as " +
+                                AlexandriaContract.AuthorEntry.AUTHOR,
+
+                        "group_concat(DISTINCT " +
+                                AlexandriaContract.CategoryEntry.TABLE_NAME + "." +
+                                AlexandriaContract.CategoryEntry.CATEGORY + ") as " +
+                                AlexandriaContract.CategoryEntry.CATEGORY
                 };
-                retCursor = bookFull.query(mDbHelper.getReadableDatabase(),
+                retCursor = mBookFull.query(
+                        mDbHelper.getReadableDatabase(),
                         bfd_projection,
-                        AlexandriaContract.BookEntry.TABLE_NAME + "." + AlexandriaContract.BookEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
+
+                        AlexandriaContract.BookEntry.TABLE_NAME + "." +
+                                AlexandriaContract.BookEntry._ID + " = '" +
+                                ContentUris.parseId(uri) + "'",
+
                         selectionArgs,
-                        AlexandriaContract.BookEntry.TABLE_NAME + "." + AlexandriaContract.BookEntry._ID,
+
+                        AlexandriaContract.BookEntry.TABLE_NAME + "." +
+                                AlexandriaContract.BookEntry._ID,
                         null,
                         sortOrder);
                 break;
@@ -157,10 +175,19 @@ public class BookProvider extends ContentProvider {
                 String[] bf_projection = {
                         AlexandriaContract.BookEntry.TABLE_NAME + "." + AlexandriaContract.BookEntry.TITLE,
                         AlexandriaContract.BookEntry.TABLE_NAME + "." + AlexandriaContract.BookEntry.IMAGE_URL,
-                        "group_concat(DISTINCT " + AlexandriaContract.AuthorEntry.TABLE_NAME + "." + AlexandriaContract.AuthorEntry.AUTHOR + ") as " + AlexandriaContract.AuthorEntry.AUTHOR,
-                        "group_concat(DISTINCT " + AlexandriaContract.CategoryEntry.TABLE_NAME + "." + AlexandriaContract.CategoryEntry.CATEGORY + ") as " + AlexandriaContract.CategoryEntry.CATEGORY
+
+                        "group_concat(DISTINCT " +
+                                AlexandriaContract.AuthorEntry.TABLE_NAME + "." +
+                                AlexandriaContract.AuthorEntry.AUTHOR + ") as " +
+                                AlexandriaContract.AuthorEntry.AUTHOR,
+
+                        "group_concat(DISTINCT " +
+                                AlexandriaContract.CategoryEntry.TABLE_NAME + "." +
+                                AlexandriaContract.CategoryEntry.CATEGORY + ") as " +
+                                AlexandriaContract.CategoryEntry.CATEGORY
                 };
-                retCursor = bookFull.query(mDbHelper.getReadableDatabase(),
+                retCursor = mBookFull.query(
+                        mDbHelper.getReadableDatabase(),
                         bf_projection,
                         null,
                         selectionArgs,
@@ -169,7 +196,7 @@ public class BookProvider extends ContentProvider {
                         sortOrder);
                 break;
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw new UnsupportedOperationException(Utilities.getResString(getContext(), R.string.exception_unknown_uri) + " " + uri);
         }
 
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
@@ -180,7 +207,7 @@ public class BookProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        final int match = uriMatcher.match(uri);
+        final int match = URI_MATCHER.match(uri);
 
         switch (match) {
             case BOOK_FULLDETAIL:
@@ -198,14 +225,14 @@ public class BookProvider extends ContentProvider {
             case CATEGORY:
                 return AlexandriaContract.CategoryEntry.CONTENT_TYPE;
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw new UnsupportedOperationException(Utilities.getResString(getContext(), R.string.exception_unknown_uri) + " " + uri);
         }
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        final int match = uriMatcher.match(uri);
+        final int match = URI_MATCHER.match(uri);
         Uri returnUri;
         switch (match) {
             case BOOK: {
@@ -213,29 +240,34 @@ public class BookProvider extends ContentProvider {
                 if (_id > 0) {
                     returnUri = AlexandriaContract.BookEntry.buildBookUri(_id);
                 } else {
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                    throw new android.database.SQLException(Utilities.getResString(getContext(), R.string.exception_failed_to_insert_row) + " " + uri);
                 }
                 getContext().getContentResolver().notifyChange(AlexandriaContract.BookEntry.buildFullBookUri(_id), null);
                 break;
             }
+
             case AUTHOR: {
                 long _id = db.insert(AlexandriaContract.AuthorEntry.TABLE_NAME, null, values);
-                if (_id > 0)
+                if (_id > 0) {
                     returnUri = AlexandriaContract.AuthorEntry.buildAuthorUri(values.getAsLong("_id"));
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                } else {
+                    throw new android.database.SQLException(Utilities.getResString(getContext(), R.string.exception_failed_to_insert_row) + " " + uri);
+                }
                 break;
             }
+
             case CATEGORY: {
                 long _id = db.insert(AlexandriaContract.CategoryEntry.TABLE_NAME, null, values);
-                if (_id > 0)
+                if (_id > 0) {
                     returnUri = AlexandriaContract.CategoryEntry.buildCategoryUri(values.getAsLong("_id"));
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                } else {
+                    throw new android.database.SQLException(Utilities.getResString(getContext(), R.string.exception_failed_to_insert_row) + " " + uri);
+                }
                 break;
             }
+
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw new UnsupportedOperationException(Utilities.getResString(getContext(), R.string.exception_unknown_uri) + " " + uri);
         }
         return returnUri;
     }
@@ -243,7 +275,7 @@ public class BookProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        final int match = uriMatcher.match(uri);
+        final int match = URI_MATCHER.match(uri);
         int rowsDeleted;
         switch (match) {
             case BOOK:
@@ -265,7 +297,7 @@ public class BookProvider extends ContentProvider {
                         selectionArgs);
                 break;
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw new UnsupportedOperationException(Utilities.getResString(getContext(), R.string.exception_unknown_uri) + " " + uri);
         }
         // Because a null deletes all rows
         if (selection == null || rowsDeleted != 0) {
@@ -277,7 +309,7 @@ public class BookProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        final int match = uriMatcher.match(uri);
+        final int match = URI_MATCHER.match(uri);
         int rowsUpdated;
         switch (match) {
             case BOOK:
@@ -294,7 +326,7 @@ public class BookProvider extends ContentProvider {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+                throw new UnsupportedOperationException(Utilities.getResString(getContext(), R.string.exception_unknown_uri) + " " + uri);
         }
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);

@@ -8,6 +8,5 @@
         android:entries="@array/pref_start_options"
         android:entryValues="@array/pref_start_values"
         android:key="pref_startFragment"
-        android:title="@string/pref_startScreen" />
-
+        android:title="@string/settings_select_start_screen_title" />
 </PreferenceScreen>

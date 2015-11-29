@@ -16,36 +16,26 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
-import com.google.android.gms.vision.barcode.Barcode;
-
-import it.jaschke.alexandria.barcode_scanner.BarcodeScannerActivity;
+import it.jaschke.alexandria.barcode_scanner.CaptureActivityAnyOrientation;
+import it.jaschke.alexandria.barcode_scanner.FragmentIntentIntegrator;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.services.DownloadImage;
 
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
-    private static final String SCAN_FORMAT = "scanFormat";
-    private static final String SCAN_CONTENTS = "scanContents";
-
-    private static final int BARCODE_SCANNER_REQUEST_CODE = 123;
-    public static final String BARCODE_SCANNER_PARCELABLE_TEXT = "BARCODE";
-
     private final int LOADER_ID = 1;
-    private final int ISBN_10_LENGTH = 10;
-    private final int ISBN_13_LENGTH = 13;
-    private final String ISBN_13_FIRST_THREE_NUMBERS = "978";
-    private final String EAN_CONTENT = "eanContent";
+    private final int ISBN_10_LENGTH = Utilities.ISBN_10_LENGTH;
+    private final int ISBN_13_LENGTH = Utilities.ISBN_13_LENGTH;
+    private final String ISBN_13_FIRST_THREE_NUMBERS = Utilities.ISBN_13_FIRST_THREE_NUMBERS;
+    private final String EAN_CONTENT = Utilities.EAN_CONTENT;
 
     private EditText mEan;
     private View mRootView;
-
-    private String mScanFormat = "Format:";
-    private String mScanContents = "Contents:";
 
     public AddBook() {
     }
@@ -101,9 +91,12 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         mRootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(
-                        new Intent(getActivity(), BarcodeScannerActivity.class),
-                        BARCODE_SCANNER_REQUEST_CODE);
+                FragmentIntentIntegrator integrator = new FragmentIntentIntegrator(AddBook.this);
+                integrator.setDesiredBarcodeFormats(IntentIntegrator.ONE_D_CODE_TYPES);
+                integrator.setCaptureActivity(CaptureActivityAnyOrientation.class);
+                integrator.setOrientationLocked(false);
+                integrator.setPrompt(getString(R.string.add_book_scanner_message));
+                integrator.initiateScan();
             }
         });
 
@@ -135,11 +128,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == BARCODE_SCANNER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Barcode barcode = data.getParcelableExtra(BARCODE_SCANNER_PARCELABLE_TEXT);
-            mEan.setText(barcode.displayValue);
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (scanResult != null) {
+            mEan.setText(scanResult.getContents());
         }
     }
 
@@ -175,33 +166,47 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         }
 
         String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        ((TextView) mRootView.findViewById(R.id.bookTitle)).setText(bookTitle);
+        if (bookTitle != null) {
+            ((TextView) mRootView.findViewById(R.id.bookTitle)).setText(bookTitle);
+        } else {
+            ((TextView) mRootView.findViewById(R.id.bookTitle)).setText(getString(R.string.error_book_title_unknown));
+        }
 
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-        ((TextView) mRootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
+        if (bookSubTitle != null) {
+            ((TextView) mRootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
+        } else {
+            ((TextView) mRootView.findViewById(R.id.bookSubTitle)).setText(getString(R.string.error_book_subtitle_unknown));
+        }
 
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        String[] authorsArr = authors.split(",");
-        ((TextView) mRootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-        ((TextView) mRootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
+        if (authors != null) {
+            String[] authorsArr = authors.split(",");
+            ((TextView) mRootView.findViewById(R.id.authors)).setLines(authorsArr.length);
+            ((TextView) mRootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
+        } else {
+            ((TextView) mRootView.findViewById(R.id.authors)).setText(getString(R.string.error_book_author_unknown));
+        }
 
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        if (Patterns.WEB_URL.matcher(imgUrl).matches()) {
+        if (imgUrl != null && Patterns.WEB_URL.matcher(imgUrl).matches()) {
             new DownloadImage((ImageView) mRootView.findViewById(R.id.bookCover)).execute(imgUrl);
             mRootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
         }
 
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-        ((TextView) mRootView.findViewById(R.id.categories)).setText(categories);
+        if (categories != null) {
+            ((TextView) mRootView.findViewById(R.id.categories)).setText(categories);
+        } else {
+            ((TextView) mRootView.findViewById(R.id.categories)).setText(getString(R.string.error_book_category_unknown));
+        }
 
         mRootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
         mRootView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-
-    }
+    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {}
 
     private void clearFields() {
         ((TextView) mRootView.findViewById(R.id.bookTitle)).setText("");
@@ -217,6 +222,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        activity.setTitle(R.string.scan);
+        activity.setTitle(R.string.menu_scan_add_book);
     }
 }

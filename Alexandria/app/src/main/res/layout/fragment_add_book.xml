@@ -23,7 +23,7 @@
                 android:id="@+id/ean"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/input_hint"
+                android:hint="@string/add_book_input_hint"
                 android:inputType="number"
                 android:maxLength="@integer/ean_size"
                 android:maxLines="1"
@@ -35,7 +35,7 @@
                 android:id="@+id/scan_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/scan_button" />
+                android:text="@string/add_book_scan_button" />
 
         </LinearLayout>
 
@@ -80,7 +80,7 @@
             android:layout_alignLeft="@+id/eancontainer"
             android:layout_alignStart="@+id/eancontainer"
             android:layout_alignTop="@+id/authors"
-            android:contentDescription="@string/book_cover" />
+            android:contentDescription="@string/book_list_book_cover" />
 
         <TextView
             android:id="@+id/categories"
@@ -107,7 +107,7 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:drawableLeft="@drawable/ic_action_discard"
-                android:text="@string/cancel_button"
+                android:text="@string/button_cancel"
                 android:visibility="invisible" />
 
             <Button
@@ -118,7 +118,7 @@
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:drawableLeft="@drawable/ic_action_accept"
-                android:text="@string/ok_button"
+                android:text="@string/button_next"
                 android:visibility="invisible" />
 
         </LinearLayout>

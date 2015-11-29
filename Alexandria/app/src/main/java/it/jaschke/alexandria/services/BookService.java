@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +21,7 @@ import java.net.URL;
 
 import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
-import it.jaschke.alexandria.Util;
+import it.jaschke.alexandria.Utilities;
 import it.jaschke.alexandria.data.AlexandriaContract;
 
 
@@ -73,9 +72,9 @@ public class BookService extends IntentService {
      * parameters.
      */
     private void fetchBook(String ean) {
-        if (!Util.getInstance(this).isOnline()) {
+        if (!Utilities.getInstance(this).isOnline()) {
             Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
-            messageIntent.putExtra(MainActivity.MESSAGE_KEY, getString(R.string.no_internet_connection));
+            messageIntent.putExtra(MainActivity.MESSAGE_KEY, getString(R.string.log_no_internet_connection));
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
             return;
         }
@@ -171,7 +170,7 @@ public class BookService extends IntentService {
                 bookArray = bookJson.getJSONArray(ITEMS);
             } else {
                 Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
-                messageIntent.putExtra(MainActivity.MESSAGE_KEY, getResources().getString(R.string.not_found));
+                messageIntent.putExtra(MainActivity.MESSAGE_KEY, getResources().getString(R.string.error_book_not_found));
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
                 return;
             }

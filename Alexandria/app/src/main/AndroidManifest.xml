@@ -13,17 +13,13 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/main_app_name"
         android:theme="@style/AppTheme">
-
-        <meta-data
-            android:name="com.google.android.gms.vision.DEPENDENCIES"
-            android:value="barcode" />
 
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation"
-            android:label="@string/app_name">
+            android:label="@string/main_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -39,15 +35,21 @@
                 android:value=".MainActivity" />
         </activity>
 
-        <activity android:name=".barcode_scanner.BarcodeScannerActivity" />
-
         <provider
             android:name=".data.BookProvider"
             android:authorities="it.jaschke.alexandria"
             android:exported="false" />
+
         <service
             android:name=".services.BookService"
             android:exported="false"></service>
+
+        <activity
+            android:name=".barcode_scanner.CaptureActivityAnyOrientation"
+            android:screenOrientation="fullSensor"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
     </application>
 
 </manifest>

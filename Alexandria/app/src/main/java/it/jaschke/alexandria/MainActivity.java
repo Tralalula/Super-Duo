@@ -21,7 +21,6 @@ import it.jaschke.alexandria.api.Callback;
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, Callback {
-
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -98,7 +97,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         actionBar.setTitle(mTitle);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
@@ -136,7 +134,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     @Override
     public void onItemSelected(String ean) {
         Bundle args = new Bundle();
-        args.putString(BookDetail.EAN_KEY, ean);
+        args.putString(Utilities.EAN_KEY, ean);
 
         BookDetail fragment = new BookDetail();
         fragment.setArguments(args);
@@ -147,7 +145,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         }
         getSupportFragmentManager().beginTransaction()
                 .replace(id, fragment)
-                .addToBackStack("Book Detail")
+                .addToBackStack(getString(R.string.book_detail))
                 .commit();
 
     }
@@ -178,6 +176,4 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         }
         super.onBackPressed();
     }
-
-
 }
